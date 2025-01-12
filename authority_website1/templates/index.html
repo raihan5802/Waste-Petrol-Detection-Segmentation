@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complain Reports</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full flex flex-col">
+
+  <header class="bg-white shadow-sm">
+    <div class="max-w-20xl mx-auto px-1 py-1 flex items-center justify-between flex-wrap">
+      <div class="flex items-center space-x-3">
+        <img src="/static/images/logo.png" alt="Logo" class="h-12 w-12 md:h-20 md:w-20 rounded-full object-cover"> <!-- Adjusted size -->
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800">Authority Portal</h1>
+      </div>
+      <nav class="flex justify-center items-center space-x-4 md:space-x-8 text-gray-600 mt-4 md:mt-0">
+        <a href="/" class="hover:text-gray-800 transition border-b-2 border-transparent hover:border-indigo-500">Reports</a>
+        <a href="/heatmap" class="hover:text-gray-800 transition border-b-2 border-transparent hover:border-indigo-500">Heatmap</a>
+        <a href="#" class="hover:text-gray-800 transition">Analytics</a>
+        <div class="flex items-center">
+          <img src="/static/images/default-user-icon.png" alt="User" class="h-12 w-20 rounded-full object-cover"> <!-- Added user icon -->
+        </div>
+      </nav>
+      
+    </div>
+  </header>
+   
+  <main class="flex-grow">
+    <section class="max-w-7xl mx-auto px-4 py-10">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-gray-900">Complaints</h2>
+        <!-- Sort By Dropdown -->
+        <div class="flex items-center space-x-2">
+          <label for="sort-by" class="text-sm font-medium text-gray-700">Sort By:</label>
+          <select id="sort-by" class="mt-1 block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="">None</option>
+            <option value="status-asc">Status (A-Z)</option>
+            <option value="status-desc">Status (Z-A)</option>
+            <option value="pixel_area-asc">Pixel Area (Ascending)</option>
+            <option value="pixel_area-desc">Pixel Area (Descending)</option>
+            <option value="date-asc">Date (Oldest First)</option>
+            <option value="date-desc">Date (Newest First)</option>
+            <option value="time-asc">Time (Earliest First)</option>
+            <option value="time-desc">Time (Latest First)</option>
+          </select>
+        </div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-300 border border-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 w-12"></th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Latitude</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Longitude</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Pixel Area</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                <!-- New Columns for Date and Time -->
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Time</th>
+                <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Resolve</th>
+                <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">View Location</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200" id="report-table-body">
+              {% for report in reports %}
+              <tr data-image-id="{{ report.image_id }}" class="hover:bg-gray-50 transition">
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {{ loop.index }}
+                </td>
+                <!-- Convert to float before rounding -->
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ report.latitude | float | round(7, 'floor') }}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ report.longitude | float | round(7, 'floor') }}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ report.pixel_area }}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ report.status }}</td>
+                <!-- Display Date and Time -->
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {{ report.date.split('T')[0] }}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {{ report.date.split('T')[1].split('.')[0] }}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-center">
+                  <input type="checkbox" class="resolve-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-center">
+                  <a href="/heatmap?lat={{ report.latitude | float }}&lng={{ report.longitude | float }}" class="text-indigo-600 hover:text-indigo-800">View</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if reports|length == 0 %}
+        <div class="text-center py-4 text-gray-500">No processing reports available.</div>
+        {% endif %}
+
+        <div class="flex justify-end mt-6">
+          <button id="resolve-button" class="bg-indigo-600 text-white px-6 py-2 rounded shadow hover:bg-indigo-700 disabled:bg-gray-300 disabled:hover:bg-gray-300 transition" disabled>
+            Mark Selected as Resolved
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-900 text-white py-6 mt-10">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-sm">&copy; 2024 Authority Portal. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkboxes = document.querySelectorAll('.resolve-checkbox');
+      const resolveButton = document.getElementById('resolve-button');
+
+      // Enable/disable resolve button based on checkboxes
+      checkboxes.forEach(chk => {
+        chk.addEventListener('change', () => {
+          const anyChecked = Array.from(checkboxes).some(c => c.checked);
+          resolveButton.disabled = !anyChecked;
+        });
+      });
+
+      resolveButton.addEventListener('click', () => {
+        const checkedRows = Array.from(checkboxes).filter(c => c.checked);
+        if (checkedRows.length === 0) return;
+
+        const promises = checkedRows.map(chk => {
+          const tr = chk.closest('tr');
+          const imageId = tr.getAttribute('data-image-id');
+
+          const formData = new FormData();
+          formData.append('image_id', imageId);
+
+          return fetch('/resolve', {
+            method: 'POST',
+            body: formData
+          }).then(res => res.json()).then(data => {
+            if (data.status === 'success') {
+              // Remove row from the table
+              tr.remove();
+            }
+          });
+        });
+
+        Promise.all(promises).then(() => {
+          resolveButton.disabled = true;
+        });
+      });
+
+      // Sorting functionality based on "Sort By" dropdown
+      const sortBySelect = document.getElementById('sort-by');
+
+      sortBySelect.addEventListener('change', function() {
+        const sortValue = this.value;
+        if (!sortValue) return; // Do nothing if "None" is selected
+
+        const [key, order] = sortValue.split('-');
+
+        sortTable(key, order);
+      });
+
+      function sortTable(key, direction) {
+        const tbody = document.getElementById('report-table-body');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+          let aVal, bVal;
+
+          if (key === 'status') {
+            aVal = a.querySelector('td:nth-child(5)').textContent.trim().toLowerCase();
+            bVal = b.querySelector('td:nth-child(5)').textContent.trim().toLowerCase();
+          } else if (key === 'pixel_area') {
+            aVal = parseFloat(a.querySelector('td:nth-child(4)').textContent.trim());
+            bVal = parseFloat(b.querySelector('td:nth-child(4)').textContent.trim());
+          } else if (key === 'date') {
+            aVal = new Date(a.querySelector('td:nth-child(6)').textContent.trim());
+            bVal = new Date(b.querySelector('td:nth-child(6)').textContent.trim());
+          } else if (key === 'time') {
+            // Extract time part and convert to Date objects for comparison
+            const aTime = a.querySelector('td:nth-child(7)').textContent.trim();
+            const bTime = b.querySelector('td:nth-child(7)').textContent.trim();
+            // Using a dummy date since we only care about time
+            aVal = new Date(`1970-01-01T${aTime}Z`);
+            bVal = new Date(`1970-01-01T${bTime}Z`);
+          } else {
+            return 0; // If key is not recognized, do not sort
+          }
+
+          if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+          if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+          return 0;
+        });
+
+        // Remove existing rows
+        while (tbody.firstChild) {
+          tbody.removeChild(tbody.firstChild);
+        }
+
+        // Append sorted rows
+        rows.forEach(row => tbody.appendChild(row));
+      }
+    });
+  </script>
+</body>
+</html>

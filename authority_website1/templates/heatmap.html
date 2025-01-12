@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Heatmap</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet.heat plugin -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+  <style>
+    #map {
+      width: 100%;
+      height: 600px;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col">
+
+  <header class="bg-white shadow-sm">
+    <div class="max-w-20xl mx-auto px-1 py-1 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="/static/images/logo.png" alt="Logo" class="h-20 w-20 rounded-full object-cover"> <!-- Adjusted size -->
+        <h1 class="text-2xl font-bold text-gray-800">Authority Portal</h1>
+      </div>
+      <nav class="flex justify-center items-center space-x-4 md:space-x-8 text-gray-600 mt-4 md:mt-0">
+        <a href="/" class="hover:text-gray-800 transition border-b-2 border-transparent hover:border-indigo-500">Reports</a>
+        <a href="/heatmap" class="hover:text-gray-800 transition border-b-2 border-transparent hover:border-indigo-500">Heatmap</a>
+        <a href="#" class="hover:text-gray-800 transition">Analytics</a>
+        <div class="flex items-center">
+          <img src="/static/images/default-user-icon.png" alt="User" class="h-12 w-20 rounded-full object-cover"> <!-- Added user icon -->
+        </div>
+      </nav>
+    </div>
+  </header>
+  
+
+  <main class="flex-grow">
+    <section class="max-w-7xl mx-auto px-4 py-10">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Heatmap of Processing Complaints</h2>
+      <div class="bg-white shadow rounded-lg p-6 relative">
+        <div id="map" class="rounded overflow-hidden border border-gray-200"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-900 text-white py-6 mt-10">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-sm">&copy; 2024 Authority Portal. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    let map, heatLayer;
+    let heatmapData = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const latParam = parseFloat(urlParams.get('lat'));
+      const lngParam = parseFloat(urlParams.get('lng'));
+
+      // Default center (if no params)
+      let initialCenter = [20, 0];
+      let initialZoom = 2;
+
+      // If lat and lng provided, center and zoom in more
+      if (!isNaN(latParam) && !isNaN(lngParam)) {
+        initialCenter = [latParam, lngParam];
+        initialZoom = 17; // Zoom in closer for detailed view
+      }
+
+      map = L.map('map').setView(initialCenter, initialZoom);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+      }).addTo(map);
+
+      // Initialize heat layer
+      heatLayer = L.heatLayer([], {
+        radius: 30,
+        blur: 15,
+        maxZoom: 17
+      }).addTo(map);
+
+      updateHeatmapData();
+      setInterval(updateHeatmapData, 5000);
+    });
+
+    function updateHeatmapData() {
+      fetch('/heatmap_data')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Heatmap Data fetched:', data);
+          heatmapData = data;
+          redrawHeatmap();
+        })
+        .catch(err => console.error('Error fetching heatmap data:', err));
+    }
+
+    function redrawHeatmap() {
+      if (!heatLayer) return;
+      const maxPixelArea = 1000;
+
+      const points = heatmapData.map(d => {
+        const intensity = Math.min(d.pixel_area / maxPixelArea, 1.0);
+        return [d.latitude, d.longitude, intensity];
+      });
+
+      console.log('Rendering heat layer points:', points);
+      heatLayer.setLatLngs(points);
+    }
+  </script>
+</body>
+</html>

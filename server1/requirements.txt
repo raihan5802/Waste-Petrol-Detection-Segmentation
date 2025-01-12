@@ -1,0 +1,7 @@
+Flask
+geopy
+opencv-python
+Pillow
+pandas
+gunicorn
+werkzeug
