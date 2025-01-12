@@ -38,16 +38,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-
-// import React from 'react';
-// import { WebView } from 'react-native-webview';
-
-// export default function MapHeatmapScreen() {
-//   return (
-//     <WebView
-//       source={{uri: 'http://192.168.0.128:5000/map-embed'}} 
-//       style={{flex:1}}
-//     />
-//   );
-// }
