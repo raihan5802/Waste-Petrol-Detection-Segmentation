@@ -63,26 +63,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-
-
-// import React from 'react';
-// import { NavigationContainer } from '@react-navigation/native';
-// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import HomeScreen from './screens/HomeScreen';
-// import ComplaintLogScreen from './screens/ComplaintLogScreen';
-// import MapHeatmapScreen from './screens/MapHeatmapScreen';
-
-// const Tab = createBottomTabNavigator();
-
-// export default function App() {
-//   return (
-//     <NavigationContainer>
-//       <Tab.Navigator>
-//         <Tab.Screen name="Home" component={HomeScreen} />
-//         <Tab.Screen name="Complaints" component={ComplaintLogScreen} />
-//         <Tab.Screen name="Heatmap" component={MapHeatmapScreen} />
-//       </Tab.Navigator>
-//     </NavigationContainer>
-//   );
-// }
