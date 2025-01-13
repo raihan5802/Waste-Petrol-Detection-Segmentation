@@ -22,11 +22,13 @@ This repository contains two interconnected projects:
 
 ### Authority Portal
 - `authority_website1/`
-  - `app.py`: Flask application handling routes and business logic.
+  - `app.py`: Flask application handling routes and business logic for managing and visualizing complaints.
   - `templates/`
     - `index.html`: Dashboard for managing complaints.
     - `heatmap.html`: Displays a heatmap of complaints.
   - `static/`: Contains static assets like images and stylesheets.
+
+### Server Backend
 - `server1/`
   - `app.py`: Backend Flask application for handling complaint submissions and resolution.
   - `requirements.txt`: Lists the Python dependencies for the backend.
@@ -54,13 +56,27 @@ This repository contains two interconnected projects:
    ```
 2. Install dependencies.
    ```bash
-   pip install -r server1/requirements.txt
+   pip install -r requirements.txt
    ```
-3. Start the Flask server.
+3. Start the Flask server for the Authority Portal.
    ```bash
-   python server1/app.py
+   python app.py
    ```
 4. Access the portal at `http://127.0.0.1:5000`.
+
+### Server Backend
+1. Navigate to the `server1` directory.
+   ```bash
+   cd server1
+   ```
+2. Install dependencies.
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Start the Flask server for the backend.
+   ```bash
+   python app.py
+   ```
 
 ### WasteApp
 1. Navigate to the `wasteapp1` directory.
